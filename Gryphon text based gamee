@@ -1,0 +1,120 @@
+# instructions on how to play the game
+import time
+
+
+def debug(arg):
+    DEBUG = False
+    if DEBUG:
+        print('*' * 30)
+        print('Debug arg =', arg)
+        print('*' * 30)
+
+
+def show_instructions():
+    # print a main menu and the commands
+    print("Sphinx riddle adventure game")
+    print("Bring the correct 4 items to win the game: an hourglass, a map, a candle and a deck of cards ")
+    print("if you bring two incorrect items you will become the sphinxs next meal")
+    print("Move commands: Move South, Move North, Move East, Move West")
+    print("Add to Inventory: get 'item name'")
+
+
+time.sleep(2)
+# an inventory, which is initially empty
+inventory = []
+
+# a dictionary linking a room to other rooms
+rooms = {'Central Cavern': {'name': 'Central Cavern', 'South': 'Second chamber', 'North': 'First chamber',
+                            'East': 'Fifth chamber',
+                            'West': 'The Way out', 'item': 'Sphinx'},
+         'Second chamber': {'name': 'Second chamber', 'North': 'Central Cavern', 'East': 'Fourth chamber',
+                            'item': 'History Book'},
+         'First chamber': {'name': 'First chamber', 'South': 'Central Cavern', 'East': 'Third chamber',
+                           'item': 'Candle'},
+         'Fifth chamber': {'name': 'Fifth chamber', 'West': 'Central Cavern', 'North': 'Sixth chamber',
+                           'item': 'Deck of cards'},
+         'Third chamber': {'name': 'third chamber', 'West': 'First chamber', 'item': 'Hourglass'},
+         'Sixth chamber': {'South': 'Fifth chamber', 'item': 'Sundial'},
+         'Fourth chamber': {'West': 'Second chamber', 'item': 'Map'},
+         'The Way out': {'East': 'Central Cavern'}
+
+         }
+directions = ['north', 'south', 'east', 'west']
+entered_room = 'Central Cavern'
+
+
+def get_command():
+    command = input('Enter move or Get > ')
+    player_arg = ''
+    command_list = command.lower().split()
+    if len(command_list) > 1:
+        player_arg = ' '.join(command_list[1:]).capitalize()
+    player_command = command_list[0]
+    return (player_command, player_arg)
+
+
+def show_status(entered_room, inventory, rooms):
+    # print the player's current status
+    print('---------------------------')
+    print('You are in the ', entered_room)
+    # print the current inventory
+    print('Inventory : ' + str(inventory))
+    # print an item if there is one
+    print(str(rooms[entered_room]))
+    print("---------------------------")
+
+
+show_instructions()
+done = False
+# loop forever
+while not done:
+    show_status(entered_room, inventory, rooms)
+
+    # get the player's next 'move'
+    # .split() breaks it up into an list array
+    # eg typing 'move east' would give the list:
+    # ['move','east']
+    player_move = ''
+    while player_move == '':
+        # room_dictionary = rooms[entered_room]
+        player_move = get_command()
+        # command,arg = get_command()
+        debug('after move arg =' + player_move[1])
+        # if they type 'move' first
+        if player_move[0] == 'move':
+
+            # check that they are allowed wherever they want to go
+            if player_move[1] in rooms[entered_room]:
+                # set the enteredroom to the new room
+                entered_room = rooms[entered_room][player_move[1]]
+            # there is no door (link) to the new room
+            else:
+                print('You can\'t go that way!')
+
+                # if they type 'get' first
+        elif player_move[0] == 'get':
+            # if the room contains an item, and the item is the one they want to get
+            if "item" in rooms[entered_room] and player_move[1] in rooms[entered_room]['item']:
+                # add the item to their inventory
+                inventory += [player_move[1]]
+                # display a helpful message
+                print(player_move[1] + ' got!')
+                # delete the item from the room
+                del rooms[entered_room]['item']
+            # otherwise, if the item isn't there to get
+            # quit game/thank you for playing!
+            # quit game/thank you for playing!
+        elif player_move[0] == 'quit':
+            print('Thank you for playing!')
+            exit()
+        else:
+            print('invalid command! try again')
+    if entered_room == 'Central Cavern':
+        if len(inventory) == 4:
+            print('Congratulations! You have reached the central cavern and have all the correct items!')
+            done = True
+        if len(inventory) == 6:
+            print('oh no you\'ve become the sphinx\'s next meal! maybe next time!')
+            done = True
+
+
